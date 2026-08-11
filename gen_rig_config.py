@@ -33,7 +33,7 @@ import yaml
 from scipy.spatial.transform import Rotation
 
 CAMCHAIN = Path("/home/dkhuttan/dataset/wrp_roof/birdseye_v2_camchain.yaml")
-OUT = Path("/home/dkhuttan/dataset/wrp_roof/before_solar_panels/wrp_roof_10Jul2026_rgbs_colmap/rig_config.json")
+OUT = Path("/home/dkhuttan/dataset/wrp_roof/before_solar_panels/all_cams_wrp_roof_10Jul2026_rgbs_colmap/rig_config.json")
 CAM_NAMES = ["rgb_1", "rgb_2", "rgb_3", "rgb_4"]
 
 F = np.diag([-1.0, -1.0, 1.0, 1.0])  # 180 deg image rotation = Rz(pi) on the camera frame

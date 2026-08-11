@@ -25,7 +25,7 @@ from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile, get_sampling
 
 SRC_DIR = Path("/home/dkhuttan/dataset/wrp_roof/before_solar_panels/wrp_roof_10Jul2026_rgbs")
-OUT_DIR = SRC_DIR.parent / "wrp_roof_10Jul2026_rgbs_colmap" / "images"
+OUT_DIR = SRC_DIR.parent / "all_cams_wrp_roof_10Jul2026_rgbs_colmap" / "images"
 NUM_CAMERAS = 4
 NAME_RE = re.compile(r"^rgb_([1-4])_(\d+\.\d+)\.(jpe?g)$", re.IGNORECASE)
 

@@ -34,7 +34,7 @@ import numpy as np
 from scipy import ndimage
 
 COLMAP_DIR = Path(
-    "/home/dkhuttan/dataset/wrp_roof/before_solar_panels/wrp_roof_10Jul2026_rgbs_colmap"
+    "/home/dkhuttan/dataset/wrp_roof/before_solar_panels/all_cams_wrp_roof_10Jul2026_rgbs_colmap"
 )
 IMAGES_DIR = COLMAP_DIR / "images"
 MASKS_DIR = COLMAP_DIR / "masks"
