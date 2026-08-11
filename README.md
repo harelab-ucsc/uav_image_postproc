@@ -5,4 +5,16 @@ The pipeline targets a **4-camera birdseye rig** whose cameras are mounted upsid
 
 ## Scripts
 
-### 1.
+### 1. 'prepare_colmap_rig.py' - image conditioning + rig layout 
+- Rotates every image 180
+- Regroups frames into 'camera1/ ... camera4/' 
+- Renames frames from the 'rgb_<N>_<timestamp>' to 'image0001.jpeg ... image000N.jpeg (this is what COLMAP expexts)
+- Writes 'frame_mapping.txt': 'imageNNNN.jpeg -> original timestamp'
+
+### 2. 'gen_rig_config.py' - calibration -> COLMAP 'rig_config.json'
+- Reads 'birdseye_v2_camchain.yaml' and writes 'rig_config.json'
+
+### 3. 'gen_leg_masks.py' - static drone leg occlusion masks
+- Finds fixed pixel region covered by UAV's landing gear in every frame
+- Writes canonical masks to 'masks/.canonical/camera{1..4}.png
+- ('0 = ignore' , '255 = keep')
