@@ -105,15 +105,18 @@ def compute_leg_mask(cam_dir: Path):
 
 
 def save_canonical(cam: str, leg_bool):
-    """Write black=leg=ignore (0), white=keep (255)"""
+    """Write black=leg=ignore (0), white=keep (255) as PNG and .npy"""
     CANON_DIR.mkdir(parents=True, exist_ok=True)
     mask = np.where(leg_bool, 0, 255).astype(np.uint8)
     cv2.imwrite(str(CANON_DIR / f"{cam}.png"), mask)
+    np.save(str(CANON_DIR/f"{cam}.npy"), mask)
 
 
 def save_white(cam: str, shape):
     CANON_DIR.mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(str(CANON_DIR / f"{cam}.png"), np.full(shape, 255, np.uint8))
+    mask = np.full(shape, 255, np.uint8)
+    cv2.imwrite(str(CANON_DIR / f"{cam}.png"), mask)
+    np.save(str(CANON_DIR / f"{cam}.npy), mask)
 
 
 def write_overlays(cam: str, leg_bool, overlay_dir: Path):
