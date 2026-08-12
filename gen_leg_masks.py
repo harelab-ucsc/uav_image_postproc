@@ -116,7 +116,7 @@ def save_white(cam: str, shape):
     CANON_DIR.mkdir(parents=True, exist_ok=True)
     mask = np.full(shape, 255, np.uint8)
     cv2.imwrite(str(CANON_DIR / f"{cam}.png"), mask)
-    np.save(str(CANON_DIR / f"{cam}.npy), mask)
+    np.save(str(CANON_DIR / f"{cam}.npy"), mask)
 
 
 def write_overlays(cam: str, leg_bool, overlay_dir: Path):
