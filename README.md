@@ -4,9 +4,13 @@ Post-processing utilities that turn a raw multi-cam Birdseye payload capture int
 The pipeline targets a **4-camera birdseye rig** whose cameras are mounted upside down, hardware-sync and calibrated camchain ('birdseye_v2_camchain.yaml'). It corrects the orientation, lays images out in COLMAP's rig convention, convers the calibration into a COLMAP rig_config.json, and builds static occlusion masks for the drone legs that appearin 2 cameras (rgb2 & rgb4).
 
 ## How to Use
+### With mask quality checks
 1. `./postproc.sh /path/to/raw/image/folder /path/to/camchain.yaml /path/to/project/root`
 2. Confirm the masks inside `/path/to/project/root/mask_overlays` look correct.
 3. `./postproc.sh --finalize-masks /path/to/project/root`
+### Without mask quality checks
+1. `./postproc.sh --no-qa /path/to/raw/image/folder /path/to/camchain.yaml /path/to/project/root`
+
 
 ## Scripts used inside `postproc.sh`
 ### 1. `prepare_colmap_rig.py` - image conditioning + rig layout 

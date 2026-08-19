@@ -13,9 +13,17 @@ PYTHON="${PYTHON:-python3}"
 
 usage() {
     echo "Usage:" >&2
-    echo "  $0 /path/to/raw/images /path/to/camchain.yaml /path/to/project/root" >&2
+    echo "  $0 [--no-qa] /path/to/raw/images /path/to/camchain.yaml /path/to/project/root" >&2
     echo "  $0 --finalize-masks /path/to/project/root" >&2
+    echo >&2
+    echo "  --no-qa  skip the manual mask-review pause and finalize immediately" >&2
 }
+
+NO_CHECK=0
+if [[ "${1:-}" == "--no-qa" ]]; then
+    NO_CHECK=1
+    shift
+fi
 
 if [[ "${1:-}" == "--finalize-masks" ]]; then
     if [[ $# -ne 2 ]]; then
@@ -72,6 +80,17 @@ PROJECT_ROOT="$3"
 "$PYTHON" "$SCRIPT_DIR/gen_rig_config.py" \
     --src "$CAMCHAIN" \
     --dest "$PROJECT_ROOT/rig_config.json"
+
+if [[ "$NO_CHECK" -eq 1 ]]; then
+    # 3.) detect drone-leg occlusion and go straight to canonical masks, skipping review
+    "$PYTHON" "$SCRIPT_DIR/gen_leg_masks.py" \
+        --colmap-root "$PROJECT_ROOT" \
+        --link-frame-masks
+
+    echo
+    echo "Done. $PROJECT_ROOT is ready for COLMAP."
+    exit 0
+fi
 
 # 3.) detect drone-leg occlusion and write canonical masks + overlays
 "$PYTHON" "$SCRIPT_DIR/gen_leg_masks.py" \
