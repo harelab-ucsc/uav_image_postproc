@@ -25,6 +25,7 @@ to the calibration:
   - fx, fy, k1, k2 are unchanged
 """
 
+import argparse
 import json
 from pathlib import Path
 
@@ -32,9 +33,16 @@ import numpy as np
 import yaml
 from scipy.spatial.transform import Rotation
 
-CAMCHAIN = Path("/home/dkhuttan/dataset/wrp_roof/birdseye_v2_camchain.yaml")
-OUT = Path("/home/dkhuttan/dataset/wrp_roof/before_solar_panels/all_cams_wrp_roof_10Jul2026_rgbs_colmap/rig_config.json")
-CAM_NAMES = ["rgb_1", "rgb_2", "rgb_3", "rgb_4"]
+parser = argparse.ArgumentParser()
+parser.add_argument("--src", type=Path, required=True, help="BirdsEye v2 camchain YAML file path to read from")
+parser.add_argument("--dest", type=Path, required=True, help="Rig configuration JSON file path to write to")
+parser.add_argument("--cam-names", type=str, nargs="+", default=["rgb_1", "rgb_2", "rgb_3", "rgb_4"], help="Camera names in the camchain YAML to include in the rig config")
+
+args = parser.parse_args()
+
+CAMCHAIN = Path(args.src)
+OUT = Path(args.dest)
+CAM_NAMES = args.cam_names
 
 F = np.diag([-1.0, -1.0, 1.0, 1.0])  # 180 deg image rotation = Rz(pi) on the camera frame
 

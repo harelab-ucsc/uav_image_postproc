@@ -15,18 +15,26 @@ A frame_mapping.txt (frame name -> original timestamp) and a
 rig_config.json template are written next to it.
 """
 
+import argparse
 import json
 import re
 import sys
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any
 
 from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile, get_sampling
 
-SRC_DIR = Path("/home/dkhuttan/dataset/wrp_roof/before_solar_panels/wrp_roof_10Jul2026_rgbs")
-OUT_DIR = SRC_DIR.parent / "all_cams_wrp_roof_10Jul2026_rgbs_colmap" / "images"
-NUM_CAMERAS = 4
+parser = argparse.ArgumentParser()
+parser.add_argument("--src-dir", type=Path, required=True, help="Directory containing source images")
+parser.add_argument("--out-dir", type=Path, required=True, help="Directory to write output images")
+parser.add_argument("--num-cameras", type=int, default=4, help="Number of cameras in the rig")
+args = parser.parse_args()
+
+SRC_DIR = Path(args.src_dir)
+OUT_DIR = Path(args.out_dir)
+NUM_CAMERAS = args.num_cameras
 NAME_RE = re.compile(r"^rgb_([1-4])_(\d+\.\d+)\.(jpe?g)$", re.IGNORECASE)
 
 
@@ -58,7 +66,7 @@ def flip_one(job):
         qtables = getattr(im, "quantization", None)
         sampling = get_sampling(im)
         flipped = im.transpose(Image.Transpose.ROTATE_180)
-    save_kwargs = {"format": "JPEG"}
+    save_kwargs: dict[str, Any] = {"format": "JPEG"}
     if qtables:
         save_kwargs["qtables"] = qtables
     else:

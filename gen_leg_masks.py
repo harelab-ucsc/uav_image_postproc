@@ -11,19 +11,24 @@ transient dark scene content.
 
 Masks use 0 = ignore, 255 = keep, matching both COLMAP (feature_extractor --ImageReader.mask_path)
 and nerfstudio (ColmapDataParser masks_path). Canonical masks are written to
-<colmap>/masks/.canonical/camera{1..4}.png (cameras 1 and 3 are all-white). --materialize then
-links a per-frame mask for every image under both naming schemes the two tools expect:
+<colmap>/masks/.canonical/camera{1..4}.png (cameras 1 and 3 are all-white). --link-frame-masks
+then links a per-frame mask for every image under both naming schemes the two tools expect:
 
     masks/cameraX/imageNNNN.png        # nerfstudio: image suffix replaced with .png
     masks/cameraX/imageNNNN.jpeg.png   # COLMAP: .png appended to the full image name
 
-Requires cv2 and scipy - run with the nerfstudio environment interpreter:
+Requires cv2 and scipy - run with an interpreter that has both installed:
 
-    python gen_leg_masks.py --overlay-dir DIR
-    python gen_leg_masks.py --materialize
+    python gen_leg_masks.py --colmap-root DIR --overlay-dir DIR
+    python gen_leg_masks.py --colmap-root DIR --link-frame-masks
 
 --overlay-dir writes a per-camera contact sheet (mask drawn over bright and dark sample
 frames) for visual inspection before the masks are used in a reconstruction.
+
+--link-frame-masks is a second, separate step: it takes the canonical masks already
+written by a plain run and symlinks each one into a per-frame mask file for every image,
+under both naming schemes the two tools expect. Run it only after a plain run has already
+written the canonical masks.
 """
 import argparse
 import os
@@ -33,14 +38,29 @@ import cv2
 import numpy as np
 from scipy import ndimage
 
-COLMAP_DIR = Path(
-    "/home/dkhuttan/dataset/wrp_roof/before_solar_panels/all_cams_wrp_roof_10Jul2026_rgbs_colmap"
-)
+parser = argparse.ArgumentParser()
+parser.add_argument("--colmap-root", type=Path, required=True,
+                     help="COLMAP project root, containing images/ and to receive masks/")
+parser.add_argument("--obstructed", type=str, nargs="+", default=["camera2", "camera4"],
+                     help="Cameras with leg occlusion")
+parser.add_argument("--overlay-dir", type=Path, default=None,
+                     help="detect drone legs in the images and write per-camera" 
+                          "canonical masks and overlay sheets for visual QA "
+                          "before the masks are used")
+parser.add_argument("--link-frame-masks", action="store_true",
+                     help="skip mask computation; instead symlink the existing canonical "
+                          "mask (masks/.canonical/cameraN.png) into a per-frame mask file "
+                          "for every image, under both the nerfstudio and COLMAP naming "
+                          "conventions. Run this only after a plain run has already "
+                          "written the canonical masks.")
+args = parser.parse_args()
+
+COLMAP_DIR = args.colmap_root
 IMAGES_DIR = COLMAP_DIR / "images"
 MASKS_DIR = COLMAP_DIR / "masks"
 CANON_DIR = MASKS_DIR / ".canonical"
 
-OBSTRUCTED = ["camera2", "camera4"]
+OBSTRUCTED = args.obstructed
 CLEAN = ["camera1", "camera3"]
 
 # Leg-detection parameters (intensities on a 0-255 grayscale).
@@ -153,7 +173,7 @@ def materialize():
     for cam in CLEAN + OBSTRUCTED:
         src_rel = Path("..") / ".canonical" / f"{cam}.png"  # relative to masks/cameraX/
         canon = CANON_DIR / f"{cam}.png"
-        assert canon.exists(), f"missing canonical mask {canon}; run without --materialize first"
+        assert canon.exists(), f"missing canonical mask {canon}; run without --link-frame-masks first"
         out_dir = MASKS_DIR / cam
         out_dir.mkdir(parents=True, exist_ok=True)
         for f in list_frames(IMAGES_DIR / cam):
@@ -168,14 +188,7 @@ def materialize():
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--overlay-dir", type=Path, default=None,
-                    help="write verification contact sheets here")
-    ap.add_argument("--materialize", action="store_true",
-                    help="build the masks/ symlink tree from existing canonical masks")
-    args = ap.parse_args()
-
-    if args.materialize:
+    if args.link_frame_masks:
         materialize()
         return
 
