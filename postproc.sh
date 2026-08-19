@@ -4,8 +4,6 @@
 # Script Name:   postproc.sh
 # Description:   Turns a raw 4-camera Birdseye payload capture into a
 #                COLMAP-ready project root.
-#                Intended to hand off PROJECT_ROOT to
-#                payload_camera_ws/scripts/hloc_reconstruct_and_densify.sh
 # ========================================================================
 
 set -Eeuo pipefail
@@ -36,7 +34,7 @@ if [[ "${1:-}" == "--finalize-masks" ]]; then
         --link-frame-masks
 
     echo
-    echo "Done. $PROJECT_ROOT is ready for hloc_reconstruct_and_densify.sh."
+    echo "Done. $PROJECT_ROOT is ready for COLMAP."
     exit 0
 fi
 
