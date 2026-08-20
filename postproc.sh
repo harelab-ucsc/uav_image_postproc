@@ -81,8 +81,13 @@ PROJECT_ROOT="$3"
     --src "$CAMCHAIN" \
     --dest "$PROJECT_ROOT/rig_config.json"
 
+# 3.) detect drone-leg occlusion and write canonical masks + overlays
+"$PYTHON" "$SCRIPT_DIR/gen_leg_masks.py" \
+    --colmap-root "$PROJECT_ROOT" \
+    --overlay-dir "$PROJECT_ROOT/masks_overlays"
+
 if [[ "$NO_CHECK" -eq 1 ]]; then
-    # 3.) detect drone-leg occlusion and go straight to canonical masks, skipping review
+    # skip the review pause and link the just-computed canonical masks immediately
     "$PYTHON" "$SCRIPT_DIR/gen_leg_masks.py" \
         --colmap-root "$PROJECT_ROOT" \
         --link-frame-masks
@@ -91,11 +96,6 @@ if [[ "$NO_CHECK" -eq 1 ]]; then
     echo "Done. $PROJECT_ROOT is ready for COLMAP."
     exit 0
 fi
-
-# 3.) detect drone-leg occlusion and write canonical masks + overlays
-"$PYTHON" "$SCRIPT_DIR/gen_leg_masks.py" \
-    --colmap-root "$PROJECT_ROOT" \
-    --overlay-dir "$PROJECT_ROOT/masks_overlays"
 
 echo
 echo "Canonical masks + overlays written. Review before continuing:"
